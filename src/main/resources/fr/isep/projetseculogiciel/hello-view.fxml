@@ -1,16 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
 
 <?import javafx.scene.control.Button?>
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="fr.isep.projetseculogiciel.HelloController">
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
-    </padding>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      styleClass="page"
+      fx:controller="com.example.demo.HelloController">
 
-    <Label fx:id="welcomeText"/>
-    <Button text="Hello!" onAction="#onHelloButtonClick"/>
+    <children>
+        <HBox styleClass="navBar" alignment="CENTER">
+            <Label styleClass="navItem" text="Isep project"/>
+            <Label styleClass="navItem" text="Simulate attacks"/>
+            <Label styleClass="navItem" text="Documentation"/>
+        </HBox>
+
+        <VBox>
+            <HBox styleClass="urlContainer" alignment="CENTER">
+                <!-- Ajouter le titre pour la zone de recherche -->
+                <Label text="Search:" styleClass="searchTitle"/>
+
+                <TextField styleClass="customTextField"/>
+            </HBox>
+
+            <!-- Centrer la HBox des fonctionnalités -->
+            <VBox styleClass="featuresContainer" alignment="CENTER">
+                <VBox styleClass="featureContainer">
+                    <Label styleClass="featureTitle" text="Brute Force"/>
+                    <CheckBox id="f1"/>
+                </VBox>
+                <VBox styleClass="featureContainer">
+                    <Label styleClass="featureTitle" text="Sql injection"/>
+                    <CheckBox id="f2"/>
+                </VBox>
+                <VBox styleClass="featureContainer">
+                    <Label styleClass="featureTitle" text="xss attacks"/>
+                    <CheckBox id="f3"/>
+                </VBox>
+
+                <VBox styleClass="featureContainer">
+                    <Label styleClass="featureTitle" text="f4"/>
+                    <CheckBox id="f4"/>
+                </VBox>
+
+                <VBox styleClass="featureContainer">
+                    <Label styleClass="featureTitle" text="f5"/>
+                    <CheckBox id="f5"/>
+                </VBox>
+
+                <VBox styleClass="featureContainer">
+                    <Label styleClass="featureTitle" text="f6"/>
+                    <CheckBox id="f6"/>
+                </VBox>
+            </VBox>
+
+            <VBox alignment="BOTTOM_CENTER">
+                <Button text="Start" styleClass="roundedBtnFill" onAction="#startAttacks" />
+            </VBox>
+        </VBox>
+    </children>
 </VBox>
