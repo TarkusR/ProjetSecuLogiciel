@@ -10,7 +10,7 @@
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       styleClass="page"
-      fx:controller="fr.isep.projetseculogiciel.HelloController">
+      fx:controller="com.example.demo.HelloController">
 
     <children>
         <HBox styleClass="navBar" alignment="CENTER">
@@ -24,37 +24,37 @@
                 <!-- Ajouter le titre pour la zone de recherche -->
                 <Label text="Search:" styleClass="searchTitle"/>
 
-                <TextField styleClass="customTextField"/>
+                <TextField fx:id="customTextField" styleClass="customTextField"/>
             </HBox>
 
             <!-- Centrer la HBox des fonctionnalités -->
             <VBox styleClass="featuresContainer" alignment="CENTER">
                 <VBox styleClass="featureContainer">
                     <Label styleClass="featureTitle" text="Brute Force"/>
-                    <CheckBox id="f1"/>
+                    <CheckBox fx:id="f1" id="f1"/>
                 </VBox>
                 <VBox styleClass="featureContainer">
                     <Label styleClass="featureTitle" text="Sql injection"/>
-                    <CheckBox id="f2"/>
+                    <CheckBox fx:id="f2" id="f2"/>
                 </VBox>
                 <VBox styleClass="featureContainer">
                     <Label styleClass="featureTitle" text="xss attacks"/>
-                    <CheckBox id="f3"/>
+                    <CheckBox fx:id="f3" id="f3"/>
                 </VBox>
 
                 <VBox styleClass="featureContainer">
                     <Label styleClass="featureTitle" text="f4"/>
-                    <CheckBox id="f4"/>
+                    <CheckBox fx:id="f4"/>
                 </VBox>
 
                 <VBox styleClass="featureContainer">
                     <Label styleClass="featureTitle" text="f5"/>
-                    <CheckBox id="f5"/>
+                    <CheckBox fx:id="f5"/>
                 </VBox>
 
                 <VBox styleClass="featureContainer">
                     <Label styleClass="featureTitle" text="f6"/>
-                    <CheckBox id="f6"/>
+                    <CheckBox fx:id="f6"/>
                 </VBox>
             </VBox>
 
