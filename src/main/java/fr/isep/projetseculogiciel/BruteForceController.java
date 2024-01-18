@@ -7,7 +7,13 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+import java.io.FileWriter;
+import java.io.IOException;
+
 public class BruteForceController {
+    private static JSONArray securityFailures = new JSONArray();
     private static boolean isVulnerable = false;
     private static String message = "";
 
@@ -20,6 +26,8 @@ public class BruteForceController {
         // Access the results
         System.out.println("Is Vulnerable: " + result.isVulnerable);
         System.out.println("Message: " + result.message);
+
+        writeJsonToFile(securityFailures, "security_failures.json");
     }
 
     private static class Result {
@@ -69,9 +77,12 @@ public class BruteForceController {
                     message = "BruteForce not working on this website. CSRF Token Detected.";
                     return new Result(isVulnerable, message);
                 } else {
-                    isVulnerable = true;
-                    message = "Password: " + line;
-                    return new Result(isVulnerable, message);
+                    JSONObject failure = new JSONObject();
+                    failure.put("security_failure_type", "CSRF");
+                    failure.put("security_failure_location", form.getAttribute("action"));
+                    failure.put("security_failure_severity", "High"); // Example severity
+
+                    securityFailures.put(failure);
                 }
             }
 
@@ -85,12 +96,12 @@ public class BruteForceController {
         return new Result(isVulnerable, message);
     }
 
-    private static Result bruteForceAttack(String url, String username, String errorMessage) {
-        try (BufferedReader passwords = new BufferedReader(new FileReader("attack_modules/brute_force/passwords.txt"))) {
-            return crack(url, username, errorMessage, passwords);
-        } catch (Exception e) {
+    private static void writeJsonToFile(JSONArray data, String filename) {
+        try (FileWriter file = new FileWriter(filename)) {
+            file.write(data.toString(4)); // Indentation for readability
+            System.out.println("Successfully written to " + filename);
+        } catch (IOException e) {
             e.printStackTrace();
-            return new Result(true, "Error");
         }
     }
 
