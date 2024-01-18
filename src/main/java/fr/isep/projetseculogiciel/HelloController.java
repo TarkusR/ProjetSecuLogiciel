@@ -62,7 +62,7 @@ public class HelloController {
                     System.out.println("F2 selected. Perform action for F2.");
                 } else if (checkBox == f3) {
                     F3Controller xssAttack = new F3Controller(textFieldValue);
-                    xssAttack.performWebAutomation();
+                    xssAttack.startXss();
                     // Action spécifique pour f3
                     System.out.println("F3 selected. Perform action for F3.");
                 } else if (checkBox == f4) {
