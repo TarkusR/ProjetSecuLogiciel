@@ -3,6 +3,7 @@ module fr.isep.projetseculogiciel {
     requires javafx.fxml;
     requires javafx.web;
 
+
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
     requires net.synedra.validatorfx;
@@ -10,6 +11,10 @@ module fr.isep.projetseculogiciel {
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
+    requires org.jsoup;
+    requires org.seleniumhq.selenium.api;
+    requires org.seleniumhq.selenium.chrome_driver;
+    requires io.github.bonigarcia.webdrivermanager;
 
     opens fr.isep.projetseculogiciel to javafx.fxml;
     exports fr.isep.projetseculogiciel;
