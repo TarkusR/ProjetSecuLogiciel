@@ -15,6 +15,8 @@ module fr.isep.projetseculogiciel {
     requires org.seleniumhq.selenium.api;
     requires org.seleniumhq.selenium.chrome_driver;
     requires io.github.bonigarcia.webdrivermanager;
+    requires jfxrt;
+    requires rt;
 
     opens fr.isep.projetseculogiciel to javafx.fxml;
     exports fr.isep.projetseculogiciel;
