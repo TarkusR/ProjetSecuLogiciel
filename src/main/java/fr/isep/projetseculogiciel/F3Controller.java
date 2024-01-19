@@ -1,5 +1,5 @@
 package fr.isep.projetseculogiciel;
-package com.example.demo;
+
 // package com.example.demo;
 
 import org.openqa.selenium.By;

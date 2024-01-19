@@ -7,21 +7,23 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+;
 import java.io.FileWriter;
 import java.io.IOException;
 
 public class BruteForceController {
-    private static JSONArray securityFailures = new JSONArray();
+    private static JsonArray securityFailures = new JsonArray();
     private static boolean isVulnerable = false;
     private static String message = "";
 
     public static void main(String[] args) {
-        String url = "https://example.com/login";
+        String url = args[0];
         String username = "example@example.com";
         String errorMessage = "Invalid credentials";
-        Result result = bruteForceAttack(url, username, errorMessage);
+        Result result = crack(url, username, errorMessage);
 
         // Access the results
         System.out.println("Is Vulnerable: " + result.isVulnerable);
@@ -77,12 +79,14 @@ public class BruteForceController {
                     message = "BruteForce not working on this website. CSRF Token Detected.";
                     return new Result(isVulnerable, message);
                 } else {
-                    JSONObject failure = new JSONObject();
-                    failure.put("security_failure_type", "CSRF");
-                    failure.put("security_failure_location", form.getAttribute("action"));
-                    failure.put("security_failure_severity", "High"); // Example severity
+                    JsonObject failure = new JsonObject();
+                    failure.addProperty("security_failure_type", "CSRF");
+                    failure.addProperty("security_failure_location", url);
+                    failure.addProperty("security_failure_severity", "High"); // Example severity
 
-                    securityFailures.put(failure);
+                    securityFailures.add(failure);
+
+
                 }
             }
 
@@ -96,9 +100,9 @@ public class BruteForceController {
         return new Result(isVulnerable, message);
     }
 
-    private static void writeJsonToFile(JSONArray data, String filename) {
+    private static void writeJsonToFile(JsonArray data, String filename) {
         try (FileWriter file = new FileWriter(filename)) {
-            file.write(data.toString(4)); // Indentation for readability
+            file.write(data.toString()); // Indentation for readability
             System.out.println("Successfully written to " + filename);
         } catch (IOException e) {
             e.printStackTrace();
