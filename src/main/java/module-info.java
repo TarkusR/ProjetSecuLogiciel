@@ -16,6 +16,7 @@ module fr.isep.projetseculogiciel {
     requires javafx.swing;
     requires org.json;
     requires com.google.gson;
+    requires dev.failsafe.core;
 
     opens fr.isep.projetseculogiciel to javafx.fxml;
     exports fr.isep.projetseculogiciel;

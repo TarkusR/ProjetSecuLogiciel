@@ -5,17 +5,17 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 import java.io.FileWriter;
 import java.io.IOException;
-
 import java.util.List;
 
 public class CSRFController {
 
-    private static JSONArray securityFailures = new JSONArray();
+    private static JsonArray securityFailures = new JsonArray();
 
     public static void main(String[] args) {
         if (args.length != 1) {
@@ -61,13 +61,12 @@ public class CSRFController {
             if (csrfTokenFound) {
                 System.out.println("CSRF token found in form.");
             } else {
+                JsonObject failure = new JsonObject();
+                failure.addProperty("security_failure_type", "CSRF");
+                failure.addProperty("security_failure_location", form.getAttribute("action"));
+                failure.addProperty("security_failure_severity", "High"); // Example severity
 
-                JSONObject failure = new JSONObject();
-                failure.put("security_failure_type", "CSRF");
-                failure.put("security_failure_location", form.getAttribute("action"));
-                failure.put("security_failure_severity", "High"); // Example severity
-
-                securityFailures.put(failure);
+                securityFailures.add(failure);
                 System.out.println("Potential CSRF vulnerability detected - no token found in form.");
             }
         } catch (Exception e) {
@@ -75,13 +74,14 @@ public class CSRFController {
         }
     }
 
-    private static void writeJsonToFile(JSONArray data, String filename) {
+    private static void writeJsonToFile(JsonArray data, String filename) {
         try (FileWriter file = new FileWriter(filename)) {
-            file.write(data.toString(4)); // Indentation for readability
+            Gson gson = new Gson();
+            String json = gson.toJson(data);
+            file.write(json); // Write JSON string
             System.out.println("Successfully written to " + filename);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
 }

@@ -26,7 +26,7 @@ public class BruteForceController {
 
     public static void main(String[] args) throws IOException {
         String url = args[0];
-        String username = "example@example.com";
+        String username = "admin@juice-sh.op";
         String errorMessage = "Invalid credentials";
         Result result = crack(url, username, errorMessage, readPasswordsFromFile("src/main/resources/fr/isep/projetseculogiciel/Passwords.txt"));
 
