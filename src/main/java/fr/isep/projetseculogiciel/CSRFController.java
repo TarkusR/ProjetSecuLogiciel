@@ -8,63 +8,58 @@ import org.openqa.selenium.WebElement;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
 
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 public class CSRFController {
 
-    private static JsonArray securityFailures = new JsonArray();
+    private JsonArray securityFailures;
+    private static final String FILENAME = "security_failures.json";
 
-    public static void main(String[] args) {
-        if (args.length != 1) {
-            System.out.println("Usage: java CSRFController <URL>");
-            return;
-        }
-        String url = args[0];
+    public CSRFController(String url) {
+        this.securityFailures = readJsonFromFile(FILENAME);
         WebDriverManager.chromedriver().setup();
         WebDriver driver = new ChromeDriver();
 
         try {
             driver.get(url);
-            List<WebElement> forms = driver.findElements(By.tagName("form"));
-            for (WebElement form : forms) {
-                checkForCsrfToken(driver, form);
+            List<WebElement> inputs = driver.findElements(By.tagName("input"));
+            for (WebElement input : inputs) {
+                checkForCsrfToken(driver, input, url);
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             driver.quit();
+            writeJsonToFile(securityFailures, FILENAME);
         }
-
-        writeJsonToFile(securityFailures, "security_failures.json");
-
     }
 
-    private static void checkForCsrfToken(WebDriver driver, WebElement form) {
+    private void checkForCsrfToken(WebDriver driver, WebElement input, String url) {
         try {
-            // Find all hidden input elements within the form
-            List<WebElement> hiddenInputs = form.findElements(By.cssSelector("input[type='hidden']"));
-
             boolean csrfTokenFound = false;
-            for (WebElement input : hiddenInputs) {
-                String inputName = input.getAttribute("name");
-                // Simple heuristic: check if the input name contains common CSRF token names
+            String inputType = input.getAttribute("type");
+            String inputName = input.getAttribute("name");
+
+            if ("hidden".equalsIgnoreCase(inputType)) {
                 if (inputName != null
                         && (inputName.toLowerCase().contains("csrf") || inputName.toLowerCase().contains("token"))) {
                     csrfTokenFound = true;
-                    break;
                 }
             }
 
-            if (csrfTokenFound) {
-                System.out.println("CSRF token found in form.");
-            } else {
+            if (!csrfTokenFound) {
                 JsonObject failure = new JsonObject();
                 failure.addProperty("security_failure_type", "CSRF");
-                failure.addProperty("security_failure_location", form.getAttribute("action"));
-                failure.addProperty("security_failure_severity", "High"); // Example severity
+                failure.addProperty("security_failure_location", url);
+                failure.addProperty("security_failure_severity", "High");
 
                 securityFailures.add(failure);
                 System.out.println("Potential CSRF vulnerability detected - no token found in form.");
@@ -74,14 +69,33 @@ public class CSRFController {
         }
     }
 
-    private static void writeJsonToFile(JsonArray data, String filename) {
-        try (FileWriter file = new FileWriter(filename)) {
+    private JsonArray readJsonFromFile(String filename) {
+        if (Files.exists(Paths.get(filename))) {
+            try (JsonReader reader = new JsonReader(new FileReader(filename))) {
+                return JsonParser.parseReader(reader).getAsJsonArray();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return new JsonArray();
+    }
+
+    private void writeJsonToFile(JsonArray data, String filename) {
+        try (FileWriter file = new FileWriter(filename, false)) {
             Gson gson = new Gson();
             String json = gson.toJson(data);
-            file.write(json); // Write JSON string
+            file.write(json);
             System.out.println("Successfully written to " + filename);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void main(String[] args) {
+        if (args.length != 1) {
+            System.out.println("Usage: java CSRFController <URL>");
+            return;
+        }
+        new CSRFController(args[0]);
     }
 }

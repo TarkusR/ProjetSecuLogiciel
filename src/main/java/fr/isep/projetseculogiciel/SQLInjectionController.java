@@ -1,11 +1,18 @@
 package fr.isep.projetseculogiciel;
 
+import com.google.gson.*;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import com.google.gson.stream.JsonReader;
 
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,14 +23,15 @@ public class SQLInjectionController {
             "' UNION SELECT 1, version() limit 1,1"
     );
 
-    public static void main(String[] args) {
-        if (args.length != 1) {
-            System.out.println("Usage: java SqlInjectionScanner <URL>");
-            return;
-        }
-        String url = args[0];
+    private WebDriver driver;
+    private static final String FILENAME = "security_failures.json";
+
+    private static JsonArray securityFailures;
+
+    public SQLInjectionController(String url) {
+        this.securityFailures = readJsonFromFile(FILENAME);
         WebDriverManager.chromedriver().setup();
-        WebDriver driver = new ChromeDriver(); // Initialize WebDriver here
+        driver = new ChromeDriver(); // Initialize WebDriver here
 
         try {
             driver.get(url);
@@ -37,8 +45,25 @@ public class SQLInjectionController {
             e.printStackTrace();
         } finally {
             driver.quit();
+            writeJsonToFile(securityFailures, FILENAME);
         }
     }
+
+    private JsonArray readJsonFromFile(String filename) {
+        JsonArray jsonArray = new JsonArray();
+        if (Files.exists(Paths.get(filename))) {
+            try (JsonReader reader = new JsonReader(new FileReader(filename))) {
+                JsonElement fileContent = JsonParser.parseReader(reader);
+                if (fileContent != null && fileContent.isJsonArray()) {
+                    jsonArray = fileContent.getAsJsonArray();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return jsonArray;
+    }
+
 
     private static void testForSqlInjection(WebDriver driver, String baseUrl, String inputName) {
         try {
@@ -62,19 +87,52 @@ public class SQLInjectionController {
                 driver.findElement(By.cssSelector("button[type='submit']")).click();
 
                 // Wait for the page to load after submission
-                Thread.sleep(5000); // Wait for 5 seconds
+                Thread.sleep(1000); // Wait for 5 seconds
 
                 // Check if the URL has changed
                 String newUrl = driver.getCurrentUrl();
                 if (!newUrl.equals(originalUrl)) {
                     System.out.println("Potential SQL injection detected for payload: " + payload);
-                } else {
-                    System.out.println("No change in URL for payload: " + payload);
+
+                    JsonObject failure = new JsonObject();
+                    failure.addProperty("security_failure_type", "SQL Injection");
+                    failure.addProperty("security_failure_location", baseUrl);
+                    failure.addProperty("security_failure_severity", "High");
+
+                    securityFailures.add(failure);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void writeJsonToFile(JsonArray newData, String filename) {
+        JsonArray existingData = readJsonFromFile(filename);
+
+        // Merge newData into existingData
+        for (JsonElement element : newData) {
+            existingData.add(element);
+        }
+
+        // Write the merged array back to the file
+        try (FileWriter file = new FileWriter(filename, false)) { // Overwrite the file
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            String json = gson.toJson(existingData);
+            file.write(json);
+            System.out.println("Successfully written to " + filename);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public static void main(String[] args) {
+        if (args.length != 1) {
+            System.out.println("Usage: java SqlInjectionScanner <URL>");
+            return;
+        }
+        new SQLInjectionController(args[0]);
     }
 
 

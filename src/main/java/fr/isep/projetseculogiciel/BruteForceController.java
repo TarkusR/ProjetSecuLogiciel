@@ -6,35 +6,47 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.file.Paths;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
+import com.google.gson.stream.JsonReader;
 
 import java.io.FileWriter;
-import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class BruteForceController {
-    private static JsonArray securityFailures = new JsonArray();
-    private static boolean isVulnerable = false;
-    private static String message = "";
+    private JsonArray securityFailures;
+    private boolean isVulnerable;
+    private String message;
+    private static final String FILENAME = "security_failures.json";
 
-    public static void main(String[] args) throws IOException {
-        String url = args[0];
-        String username = "admin@juice-sh.op";
-        String errorMessage = "Invalid credentials";
-        Result result = crack(url, username, errorMessage, readPasswordsFromFile("src/main/resources/fr/isep/projetseculogiciel/Passwords.txt"));
+    public BruteForceController(String url, String username, String errorMessage, String passwordsFilePath) throws IOException {
+        this.securityFailures = readJsonFromFile(FILENAME);
+        this.isVulnerable = false;
+        this.message = "";
+
+        BufferedReader passwords = readPasswordsFromFile(passwordsFilePath);
+        Result result = crack(url, username, errorMessage, passwords);
 
         // Access the results
         System.out.println("Is Vulnerable: " + result.isVulnerable);
         System.out.println("Message: " + result.message);
 
-        writeJsonToFile(securityFailures, "security_failures.json");
+        writeJsonToFile(securityFailures, FILENAME);
+    }
+
+    public static void main(String[] args) throws IOException {
+        if (args.length != 1) {
+            System.out.println("Usage: java BruteForceController <URL>");
+            return;
+        }
+        String url = args[0];
+        String username = "admin@juice-sh.op";
+        String errorMessage = "Invalid credentials";
+        String passwordsFilePath = "src/main/resources/fr/isep/projetseculogiciel/Passwords.txt";
+
+        new BruteForceController(url, username, errorMessage, passwordsFilePath);
     }
 
     private static class Result {
@@ -47,7 +59,7 @@ public class BruteForceController {
         }
     }
 
-    private static Result crack(String url, String username, String error_message, BufferedReader passwords) {
+    private Result crack(String url, String username, String error_message, BufferedReader passwords) {
         int count = 0;
         String line;
 
@@ -75,50 +87,65 @@ public class BruteForceController {
                     }
                 }
 
-                if (response.toString().contains(error_message)) {
+                if (!response.toString().contains(error_message)) {
+                    // Password is correct, break the loop and record the successful attempt
                     isVulnerable = true;
-                    // Continue the loop
-                    continue;
-                } else if (response.toString().contains("CSRF") || response.toString().contains("csrf")) {
-                    isVulnerable = false;
-                    message = "BruteForce not working on this website. CSRF Token Detected.";
-                    return new Result(isVulnerable, message);
-                } else {
+                    message = "Password found: " + line;
                     JsonObject failure = new JsonObject();
-                    failure.addProperty("security_failure_type", "CSRF");
+                    failure.addProperty("security_failure_type", "Brute Force");
                     failure.addProperty("security_failure_location", url);
-                    failure.addProperty("security_failure_severity", "High"); // Example severity
+                    failure.addProperty("security_failure_severity", "High");
+                    failure.addProperty("successful_password", line);
 
                     securityFailures.add(failure);
-
-
+                    break;
                 }
+                // Continue trying other passwords
             }
 
-            message = "User password not in the list of passwords";
+            if (!isVulnerable) {
+                message = "No successful password found.";
+            }
         } catch (Exception e) {
             e.printStackTrace();
             isVulnerable = true;
-            message = "Error";
+            message = "Error during the brute force attempt.";
         }
 
         return new Result(isVulnerable, message);
     }
 
-    private static void writeJsonToFile(JsonArray data, String filename) {
-        try (FileWriter file = new FileWriter(filename)) {
-            file.write(data.toString()); // Indentation for readability
+    private JsonArray readJsonFromFile(String filename) {
+        JsonArray jsonArray = new JsonArray();
+        if (Files.exists(Paths.get(filename))) {
+            try (JsonReader reader = new JsonReader(new FileReader(filename))) {
+                // Parse the JSON file content
+                JsonElement fileContent = JsonParser.parseReader(reader);
+                // Check if the file content is a JSON array
+                if (fileContent != null && fileContent.isJsonArray()) {
+                    jsonArray = fileContent.getAsJsonArray();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return jsonArray;
+    }
+
+
+    private void writeJsonToFile(JsonArray data, String filename) {
+        try (FileWriter file = new FileWriter(filename, false)) { // Set append to false to overwrite
+            Gson gson = new Gson();
+            String json = gson.toJson(data);
+            file.write(json); // Write JSON string
             System.out.println("Successfully written to " + filename);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-
-    public static BufferedReader readPasswordsFromFile(String filePath) throws IOException {
+    private static BufferedReader readPasswordsFromFile(String filePath) throws IOException {
         FileReader fileReader = new FileReader(filePath);
         return new BufferedReader(fileReader);
     }
-
-
 }
