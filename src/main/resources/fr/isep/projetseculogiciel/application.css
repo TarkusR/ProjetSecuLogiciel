@@ -1,0 +1,82 @@
+/* Stylesheet.css */
+
+.page {
+    -fx-background-color: #f4f4f4;
+
+    -fx-alignment: TOP_CENTER;
+}
+
+.header {
+    -fx-spacing: 10px;
+}
+
+.navItem {
+    -fx-font-size: 14px;
+    -fx-text-fill: black;
+    -fx-padding: 8px 12px;
+}
+
+.navBar {
+    -fx-background-color: #F7F7F7;
+    -fx-padding: 10px;
+}
+
+.urlContainer {
+    -fx-spacing: 15px;
+    -fx-padding: 10px;
+
+}
+
+.url {
+    -fx-pref-width: 300px;
+    -fx-pref-height: 30px;
+    -fx-padding: 5px;
+}
+
+.featuresContainer {
+    -fx-spacing: 20px;
+    -fx-padding: 10px;
+
+}
+
+.customTextField {
+    -fx-pref-width: 300px; /* Ajuster la largeur selon vos besoins */
+    -fx-pref-height: 30px; /* Ajuster la hauteur selon vos besoins */
+    -fx-border-radius: 5px; /* Bordures arrondies */
+    -fx-border-color: #999999; /* Couleur de la bordure */
+    -fx-background-color: #ffffff; /* Couleusr de fond */
+}
+
+.searchTitle {
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 5px 0;
+}
+
+.featureContainer {
+    -fx-padding: 10px;
+    -fx-background-color: #ffffff;
+    -fx-border-radius: 10px;
+    -fx-border-color: #e0e0e0;
+    -fx-spacing: 10px;
+}
+
+.featureTitle {
+    -fx-font-weight: bold;
+}
+
+.roundedBtnFill {
+    -fx-background-color: BLACK;
+    -fx-text-fill: white;
+    -fx-padding: 12px 60px;
+    -fx-font-size: 16px;
+    -fx-border-radius: 50px;
+    -fx-alignment: BOTTOM_CENTER;
+    -fx-spacing: 10px;
+
+
+}
+
+.longForMobile {
+    -fx-pref-width: 250px;
+}
