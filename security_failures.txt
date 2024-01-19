@@ -1,0 +1,27 @@
+Security Failure Type: Brute Force
+Location: http://localhost:3000/
+Severity: High
+Successful Password: 123456
+-----------
+
+Security Failure Type: Brute Force
+Location: http://localhost:3000/
+Severity: High
+Successful Password: 123456
+-----------
+
+Security Failure Type: SQL Injection
+Location: http://localhost:3000//#/login
+Severity: High
+-----------
+
+Security Failure Type: CSRF
+Location: http://localhost:3000/
+Severity: High
+-----------
+
+Security Failure Type: Broken Access Control
+Location: http://localhost:3000//ftp
+Severity: High
+-----------
+

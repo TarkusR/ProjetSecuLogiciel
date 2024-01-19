@@ -31,7 +31,7 @@ public class SQLInjectionController {
     public SQLInjectionController(String url) {
         this.securityFailures = readJsonFromFile(FILENAME);
         WebDriverManager.chromedriver().setup();
-        driver = new ChromeDriver(); // Initialize WebDriver here
+        driver = new ChromeDriver();
 
         try {
             driver.get(url);
@@ -87,7 +87,7 @@ public class SQLInjectionController {
                 driver.findElement(By.cssSelector("button[type='submit']")).click();
 
                 // Wait for the page to load after submission
-                Thread.sleep(1000); // Wait for 5 seconds
+                Thread.sleep(1000); // Wait for 1 seconds
 
                 // Check if the URL has changed
                 String newUrl = driver.getCurrentUrl();
@@ -110,13 +110,11 @@ public class SQLInjectionController {
     private void writeJsonToFile(JsonArray newData, String filename) {
         JsonArray existingData = readJsonFromFile(filename);
 
-        // Merge newData into existingData
         for (JsonElement element : newData) {
             existingData.add(element);
         }
 
-        // Write the merged array back to the file
-        try (FileWriter file = new FileWriter(filename, false)) { // Overwrite the file
+        try (FileWriter file = new FileWriter(filename, false)) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             String json = gson.toJson(existingData);
             file.write(json);

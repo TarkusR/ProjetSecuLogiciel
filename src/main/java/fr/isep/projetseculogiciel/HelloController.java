@@ -70,6 +70,7 @@ public class HelloController {
                     System.out.println("F4 selected. Perform action for F4.");
                 } else if (checkBox == f5) {
                     new BrokenAccessControl(textFieldValue);
+                    JsonToTextConverter.convertJsonToText();
                     System.out.println("F5 selected. Perform action for F5.");
                 } else if (checkBox == f6) {
                     System.out.println("F6 selected. Perform action for F6.");
