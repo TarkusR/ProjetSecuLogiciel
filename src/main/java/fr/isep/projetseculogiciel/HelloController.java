@@ -73,6 +73,7 @@ public class HelloController {
                     System.out.println("F5 selected. Perform action for F5.");
                 } else if (checkBox == f6) {
                     System.out.println("F6 selected. Perform action for F6.");
+                    //new SecurityMisconfigurationController();
                 }
                 // Ajoutez d'autres blocs else if si nécessaire pour les CheckBox supplémentaires
             }
