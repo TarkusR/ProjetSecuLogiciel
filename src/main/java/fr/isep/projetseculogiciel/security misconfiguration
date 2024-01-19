@@ -1,0 +1,79 @@
+package fr.isep.projetseculogiciel;
+
+import org.apache.http.Consts;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public class SecurityMisconfigurationScanner {
+
+    private static final List<String> SECURITY_HEADERS_TO_CHECK = Arrays.asList(
+            "X-Frame-Options",
+            "X-Content-Type-Options",
+            "X-XSS-Protection",
+            "Content-Security-Policy",
+            "Strict-Transport-Security"
+    );
+
+    public static void main(String[] args) {
+        if (args.length != 1) {
+            System.out.println("Usage: java SecurityMisconfigurationScanner <URL>");
+            return;
+        }
+
+        String url = args[0];
+        scanForMisconfigurations(url);
+    }
+
+    private static void scanForMisconfigurations(String url) {
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpGet request = new HttpGet(url);
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                System.out.println("Scanning URL: " + url);
+
+                // Checking for missing security headers
+                for (String header : SECURITY_HEADERS_TO_CHECK) {
+                    if (response.getFirstHeader(header) == null) {
+                        System.out.println("Missing security header: " + header);
+                    }
+                }
+
+                // Check for Exposed Server Version
+                if (response.getFirstHeader("Server") != null) {
+                    System.out.println("Server version exposed: " + response.getFirstHeader("Server").getValue());
+                }
+
+                // Check for Default Credentials
+                checkForDefaultCredentials(httpClient, url);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void checkForDefaultCredentials(CloseableHttpClient httpClient, String url) {
+        // Example: Check if default admin credentials work
+        HttpPost loginRequest = new HttpPost(url + "/login"); // Modify URL based on actual login endpoint
+        List<NameValuePair> credentials = new ArrayList<>();
+        credentials.add(new BasicNameValuePair("username", "admin"));
+        credentials.add(new BasicNameValuePair("password", "admin123")); // Example default credentials
+        loginRequest.setEntity(new UrlEncodedFormEntity(credentials, Consts.UTF_8));
+
+        try (CloseableHttpResponse response = httpClient.execute(loginRequest)) {
+            if (response.getStatusLine().getStatusCode() == 200) { // Assuming 200 is a successful login
+                System.out.println("Default credentials are working: admin/admin123");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
