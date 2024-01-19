@@ -6,6 +6,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.Paths;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -23,7 +28,7 @@ public class BruteForceController {
         String url = args[0];
         String username = "example@example.com";
         String errorMessage = "Invalid credentials";
-        Result result = crack(url, username, errorMessage);
+        Result result = crack(url, username, errorMessage, readPasswordsFromFile("src/main/resources/fr/isep/projetseculogiciel/Passwords.txt"));
 
         // Access the results
         System.out.println("Is Vulnerable: " + result.isVulnerable);
@@ -108,5 +113,12 @@ public class BruteForceController {
             e.printStackTrace();
         }
     }
+
+
+    public static BufferedReader readPasswordsFromFile(String filePath) throws IOException {
+        FileReader fileReader = new FileReader(filePath);
+        return new BufferedReader(fileReader);
+    }
+
 
 }
